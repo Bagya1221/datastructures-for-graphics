@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 100
+// Graph structure
+typedef struct Graph {
+    int numVertices;
+    int adjMatrix[MAX][MAX];
+} Graph;
+// Queue structure for BFS
+typedef struct Queue {
+    int items[MAX];
+    int front;
+    int rear;
+} Queue;
+// Function to create a graph with given number of vertices
+Graph* createGraph(int vertices) {
+    Graph* graph = (Graph*)malloc(sizeof(Graph));
+    graph->numVertices = vertices;
+    for (int i = 0; i < vertices; i++) {
+        for (int j = 0; j < vertices; j++) {
+            graph->adjMatrix[i][j] = 0;
+        }
+    }
+    return graph;
+}
+// Function to add an edge to the graph
+void addEdge(Graph* graph, int src, int dest) {
+    graph->adjMatrix[src][dest] = 1;
+    graph->adjMatrix[dest][src] = 1; // For undirected graph
+}
+// Function to create a queue
+Queue* createQueue() {
+    Queue* queue = (Queue*)malloc(sizeof(Queue));
+    queue->front = -1;
+    queue->rear = -1;
+    return queue;
+}
+// Function to check if the queue is empty
+int isEmpty(Queue* queue) {
+    if (queue->rear == -1) return 1;
+    return 0;
+}
+// Function to add an element to the queue
+void enqueue(Queue* queue, int value) {
+    if (queue->rear == MAX - 1)
+        printf("\nQueue is full!!");
+    else {
+        if (queue->front == -1) queue->front = 0;
+        queue->rear++;
+        queue->items[queue->rear] = value;
+    }
+}
+
+// Function to remove an element from the queue
+int dequeue(Queue* queue) {
+    int item;
+    if (isEmpty(queue)) {
+        printf("Queue is empty");
+        item = -1;
+    } else {
+        item = queue->items[queue->front];
+        queue->front++;
+        if (queue->front > queue->rear) {
+            queue->front = queue->rear = -1;
+        }
+    }
+    return item;
+}
+// Function to print the queue
+void printQueue(Queue* queue) {
+    int i = queue->front;
+
+    if (isEmpty(queue)) {
+        printf("Queue is empty");
+    } else {
+        printf("\nQueue contains \n");
+        for (i = queue->front; i < queue->rear + 1; i++) {
+            printf("%d ", queue->items[i]);
+        }
+    }
+}
+// BFS algorithm
+void bfs(Graph* graph, int startVertex) {
+    Queue* queue = createQueue();
+    int visited[MAX] = {0};
+    visited[startVertex] = 1;
+    enqueue(queue, startVertex);
+    while (!isEmpty(queue)) {
+        printQueue(queue);
+        int currentVertex = dequeue(queue);
+        printf("Visited %d\n", currentVertex);
+
+        for (int i = 0; i < graph->numVertices; i++) {
+            if (graph->adjMatrix[currentVertex][i] == 1 && !visited[i]) {
+                visited[i] = 1;
+                enqueue(queue, i);
+            } } } }
+int main() {
+    int vertices, edges, src, dest, startVertex;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &vertices);
+    Graph* graph = createGraph(vertices);
+    printf("Enter the number of edges: ");
+    scanf("%d", &edges);
+    for (int i = 0; i < edges; i++) {
+        printf("Enter edge (source destination): ");
+        scanf("%d %d", &src, &dest);
+        addEdge(graph, src, dest);
+    }
+    printf("Enter the starting vertex: ");
+    scanf("%d", &startVertex);
+    printf("Breadth-First Search starting from vertex %d:\n", startVertex);
+    bfs(graph, startVertex);
+    return 0;
+}
