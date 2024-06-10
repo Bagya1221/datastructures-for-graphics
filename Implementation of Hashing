@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define TABLE_SIZE 10
+typedef struct {
+    int key;
+    int value;
+} HashItem;
+HashItem* hashTable[TABLE_SIZE];
+int hashFunction(int key) {
+    return key % TABLE_SIZE;
+}
+void initHashTable() {
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashTable[i] = NULL;
+    }
+}
+void insert(int key, int value) {
+    int hashIndex = hashFunction(key);
+    int originalIndex = hashIndex;
+
+    HashItem* newItem = (HashItem*)malloc(sizeof(HashItem));
+    newItem->key = key;
+    newItem->value = value;
+    // Linear probing
+    while (hashTable[hashIndex] != NULL) {
+        // If the key already exists, update the value
+        if (hashTable[hashIndex]->key == key) {
+            hashTable[hashIndex]->value = value;
+            return;
+        }
+        // Move to the next index
+        hashIndex = (hashIndex + 1) % TABLE_SIZE;
+        // If we have looped back to the original index, the table is full
+        if (hashIndex == originalIndex) {
+            printf("Hash table is full\n");
+            return;
+        }
+    }
+    hashTable[hashIndex] = newItem;
+}
+int search(int key) {
+    int hashIndex = hashFunction(key);
+    int originalIndex = hashIndex;
+    // Linear probing
+    while (hashTable[hashIndex] != NULL) {
+        if (hashTable[hashIndex]->key == key) {
+            return hashTable[hashIndex]->value;
+        }
+        hashIndex = (hashIndex + 1) % TABLE_SIZE;
+        // If we have looped back to the original index, the key does not exist
+        if (hashIndex == originalIndex) {
+            break;
+        }
+    }
+    printf("Key %d not found\n", key);
+    return -1;
+}
+void delete(int key) {
+    int hashIndex = hashFunction(key);
+    int originalIndex = hashIndex;
+    // Linear probing
+    while (hashTable[hashIndex] != NULL) {
+        if (hashTable[hashIndex]->key == key) {
+            free(hashTable[hashIndex]);
+            hashTable[hashIndex] = NULL;
+            printf("Key %d deleted\n", key);
+            return;
+        }
+        hashIndex = (hashIndex + 1) % TABLE_SIZE;
+        // If we have looped back to the original index, the key does not exist
+        if (hashIndex == originalIndex) {
+            break;
+        }
+    }
+    printf("Key %d not found\n", key);
+}
+void display() {
+    printf("Hash Table:\n");
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        if (hashTable[i] != NULL) {
+            printf("Index %d: Key %d, Value %d\n", i, hashTable[i]->key, hashTable[i]->value);
+        } else {
+            printf("Index %d: NULL\n", i);
+        }
+    }
+}
+int main() {
+    initHashTable();
+    insert(1, 10);
+    insert(2, 20);
+    insert(42, 80);
+    insert(4, 25);
+    insert(12, 44);
+    insert(14, 32);
+    insert(17, 11);
+    insert(13, 78);
+    insert(37, 97);
+    display();
+    printf("Search for key 37: %d\n", search(37));
+    printf("Search for key 100: %d\n", search(100));
+    delete(37);
+    display();
+    return 0;
+}
