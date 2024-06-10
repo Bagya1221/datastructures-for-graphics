@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX 100
+// Graph structure
+typedef struct Graph {
+    int numVertices;
+    int adjMatrix[MAX][MAX];
+} Graph;
+// Stack structure for DFS
+typedef struct Stack {
+    int items[MAX];
+    int top;
+} Stack;
+// Function to create a graph with given number of vertices
+Graph* createGraph(int vertices) {
+    Graph* graph = (Graph*)malloc(sizeof(Graph));
+    graph->numVertices = vertices;
+    for (int i = 0; i < vertices; i++) {
+        for (int j = 0; j < vertices; j++) {
+            graph->adjMatrix[i][j] = 0;
+        }
+    }
+    return graph;
+}
+// Function to add an edge to the graph
+void addEdge(Graph* graph, int src, int dest) {
+    graph->adjMatrix[src][dest] = 1;
+    graph->adjMatrix[dest][src] = 1; // For undirected graph
+}
+// Function to create a stack
+Stack* createStack() {
+    Stack* stack = (Stack*)malloc(sizeof(Stack));
+    stack->top = -1;
+    return stack;
+}
+// Function to check if the stack is empty
+int isEmpty(Stack* stack) {
+    if (stack->top == -1) return 1;
+    return 0;
+}
+// Function to push an element onto the stack
+void push(Stack* stack, int value) {
+    stack->items[++stack->top] = value;
+}
+// Function to pop an element from the stack
+int pop(Stack* stack) {
+    if (!isEmpty(stack)) return stack->items[stack->top--];
+    return -1;
+}
+// DFS algorithm
+void dfs(Graph* graph, int startVertex) {
+    Stack* stack = createStack();
+    int visited[MAX] = {0};
+    push(stack, startVertex);
+    while (!isEmpty(stack)) {
+        int currentVertex = pop(stack);
+        if (!visited[currentVertex]) {
+            printf("Visited %d\n", currentVertex);
+            visited[currentVertex] = 1;
+        }
+        for (int i = graph->numVertices - 1; i >= 0; i--) {
+            if (graph->adjMatrix[currentVertex][i] == 1 && !visited[i]) {
+                push(stack, i);
+            } } } }
+int main() {
+    int vertices, edges, src, dest, startVertex;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &vertices);
+    Graph* graph = createGraph(vertices);
+    printf("Enter the number of edges: ");
+    scanf("%d", &edges);
+    for (int i = 0; i < edges; i++) {
+        printf("Enter edge (source destination): ");
+        scanf("%d %d", &src, &dest);
+        addEdge(graph, src, dest);
+    }
+    printf("Enter the starting vertex: ");
+    scanf("%d", &startVertex);
+    printf("Depth-First Search starting from vertex %d:\n", startVertex);
+    dfs(graph, startVertex);
+    return 0;
+}
